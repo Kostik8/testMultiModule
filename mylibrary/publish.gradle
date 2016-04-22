@@ -1,0 +1,76 @@
+
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            groupId project.group.toString()
+            artifactId project.getName()
+
+              artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                //Iterate over the compile dependencies (we don't want the test ones), adding a <dependency> node for each
+                project.configurations.compile.allDependencies.each {
+                    if (it.version != null) {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                        //If there are any exclusions in dependency
+                        if (it.excludeRules.size() > 0) {
+                            def exclusionsNode = dependencyNode.appendNode('exclusions')
+                            it.excludeRules.each { rule ->
+                                def exclusionNode = exclusionsNode.appendNode('exclusion')
+                                exclusionNode.appendNode('groupId', rule.group)
+                                exclusionNode.appendNode('artifactId', rule.module)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+task writeNewPom {
+    pom {
+        project {
+            packaging 'aar'
+            name project.getName()
+        }
+    }.writeTo("$buildDir/publications/aar/pom-default.xml")
+}
+
+artifactoryPublish {
+    dependsOn assembleRelease
+    dependsOn writeNewPom
+}
+
+artifactory {
+    contextUrl='https://artifactory.qmob.de/artifactory'
+    publish {
+        repository {
+            repoKey = 'libs-snapshot-local' // The Artifactory repository key to publish to
+            username = "${artifactory_user}" // The publisher user name
+            password = "${artufactory_pass}" // The publisher password
+        }
+        defaults {
+            publishPom = true
+            publishIvy = false
+            publishArtifacts = true
+            publications('aar')
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'libs-snapshot-local' // The Artifactory repository key to publish to
+            username = "${artifactory_user}" // The publisher user name
+            password = "${artufactory_pass}" // The publisher password
+            maven = true
+        }
+    }
+}
