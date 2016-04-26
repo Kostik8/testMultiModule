@@ -1,8 +1,5 @@
 apply plugin: 'com.android.library'
 
-group = 'com.example.konstantin.mylibrary'
-version = '17.19-SNAPSHOT'
-
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
@@ -27,4 +24,44 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.3.0'
 }
 
-apply from: file('publish.gradle')
+apply plugin: 'com.jfrog.artifactory'
+
+artifactory {
+    contextUrl = "${artifactory_url}"
+    publish {
+        repository {
+            repoKey = 'libs-release-local' // The Artifactory repository key to publish to
+            username = "${artifactory_user}" // The publisher user name
+            password = "${artifactory_password}" // The publisher password
+            maven = true
+        }
+        defaults {
+            publishArtifacts = true
+            publications('aar')
+            publishPom = true
+            publishIvy = false
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'libs-release-local' // The Artifactory repository key to publish to
+            username = "${artifactory_user}" // The publisher user name
+            password = "${artifactory_password}" // The publisher password
+            maven = true
+        }
+    }
+}
+
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            groupId 'com.example.konstantin.mylibrary'
+            artifactId project.getName()
+            version "${mylibraryVersion}"
+            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+        }
+    }
+}
+

@@ -10,26 +10,26 @@ buildscript {
 }
 
 ext {
-    mylibraryVersion = '17.19-SNAPSHOT'
-}
-
-configurations.all {
-    resolutionStrategy {
-        dependencySubstitution {
-            substitute module("com.example.konstantin.mylibrary:mylibrary:${mylibraryVersion}") with project(':mylibrary')
-        }
-    }
+    mylibraryVersion = '17.20'
 }
 
 allprojects {
     repositories {
         jcenter()
         maven {
-            url = "${artifactory_url}/libs-snapshot-local"
+            url "${artifactory_url}/libs-release-local"
             credentials {
-                username "${artifactory_user}" // The publisher user name
-                password "${artufactory_pass}" // The publisher password
+                username = "${artifactory_user}" // The publisher user name
+                password = "${artifactory_password}" // The publisher password
             }
+        }
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        dependencySubstitution {
+            substitute module("com.example.konstantin.mylibrary:mylibrary:${mylibraryVersion}") with project(':mylibrary')\
         }
     }
 }
