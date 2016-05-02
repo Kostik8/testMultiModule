@@ -11,6 +11,7 @@ buildscript {
 
 ext {
     mylibraryVersion = '17.20'
+    binary = true
 }
 
 allprojects {
@@ -25,10 +26,12 @@ allprojects {
         }
     }
 
-    configurations.all {
-        resolutionStrategy {
-            dependencySubstitution {
-                substitute module("com.example.konstantin.mylibrary:mylibrary:${mylibraryVersion}") with project(':mylibrary')\
+    if (binary) {
+        configurations.all {
+            resolutionStrategy {
+                dependencySubstitution {
+                    substitute project(':mylibrary') with module("com.example.konstantin.mylibrary:mylibrary:${mylibraryVersion}")
+                }
             }
         }
     }
