@@ -19,8 +19,6 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.3.0'
 }
 
@@ -52,16 +50,5 @@ artifactory {
     }
 }
 
-apply plugin: 'maven-publish'
-
-publishing {
-    publications {
-        aar(MavenPublication) {
-            groupId 'com.example.konstantin.mylibrary'
-            artifactId project.getName()
-            version "${mylibraryVersion}"
-            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
-        }
-    }
-}
+apply from: file('publishing.gradle')
 

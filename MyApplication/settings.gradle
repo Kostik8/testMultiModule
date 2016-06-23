@@ -1,3 +1,5 @@
 include ':app'
-include ':mylibrary'
-project(':mylibrary').projectDir = new File('../mylibrary')
+if (binarylib != "true") {
+    include ':mylibrary'
+    project(':mylibrary').projectDir = new File('../mylibrary')
+}

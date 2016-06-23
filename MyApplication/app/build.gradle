@@ -25,7 +25,10 @@ dependencies {
     compile 'com.android.support:design:23.3.0'
 
     // this artifact dependency should be able to be replaced by project dependency
-    compile "com.example.konstantin.mylibrary:mylibrary:${mylibraryVersion}"
-//    compile project(':mylibrary')
+     if (binarylib == 'true') {
+         compile("com.example.konstantin.mylibrary:mylibrary:${mylibraryVersion}")
+     } else {
+         compile project(':mylibrary')
+     }
 }
 
